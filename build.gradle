@@ -1,0 +1,68 @@
+buildscript {
+    ext {
+        springBootVersion = '1.3.3.RELEASE'
+        kotlinVersion = '1.0.1-2'
+        springVersion = '4.2.5.RELEASE'
+        junitVersion = '5.0.0-ALPHA'
+        if (System.getenv("JITPACK") == "true") {
+            group = 'com.github.bright'
+        } else {
+            group = 'pl.brightinventions'
+        }
+    }
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.kotlinVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.6.RELEASE"
+        classpath "org.junit:junit-gradle:${project.junitVersion}"
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+group project.ext.group
+version '0.1.0'
+
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.junit.gen5.gradle'
+
+junit5 {
+    version project.junitVersion
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlinVersion}"
+    compile "org.jetbrains.kotlin:kotlin-reflect:${project.kotlinVersion}"
+    compile 'org.springframework:spring-web'
+    compile 'org.springframework:spring-webmvc'
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
+
+
+    testCompile 'org.springframework:spring-test'
+    testCompile 'org.assertj:assertj-core:3.4.1'
+    testCompile "org.junit:junit4-runner:${project.junitVersion}"
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.7.4'
+}
+
+
+compileTestJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+
+dependencyManagement {
+    dependencies {
+        dependency "org.springframework:spring-web:${project.springVersion}"
+        dependency "org.springframework:spring-webmvc:${project.springVersion}"
+        dependency "org.springframework:spring-test:${project.springVersion}"
+    }
+}
+
