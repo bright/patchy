@@ -77,7 +77,7 @@ class MethodArgumentResolver_resolve_Tests : ResolverTestBase() {
         val resolveCustomRequest = resolveCustomRequest()
 
         resolveCustomRequest.assert.isNotNull()
-        resolveCustomRequest!!.changes.assert.isEmpty()
+        resolveCustomRequest!!._changes.assert.isEmpty()
     }
 
     @Test
@@ -85,7 +85,7 @@ class MethodArgumentResolver_resolve_Tests : ResolverTestBase() {
         val body = mapOf("name" to  "Request Name")
         val customRequest = resolveCustomRequestWithBody(body)
 
-        customRequest!!.changes.assert.isEqualTo(body)
+        customRequest!!._changes.assert.isEqualTo(body)
     }
 
     @Test
@@ -96,7 +96,7 @@ class MethodArgumentResolver_resolve_Tests : ResolverTestBase() {
             r.setContent(ByteArray(0))
         })
 
-        customRequest!!.changes.assert.isEmpty()
+        customRequest!!._changes.assert.isEmpty()
     }
 
     @Test
@@ -157,10 +157,10 @@ open class ResolverTestBase {
     val methods = Methods()
 }
 
-class CustomRequest(override var changes: Map<String, Any?> = (mapOf<String, Any?>())) : PatchyRequest {
+class CustomRequest(override var _changes: Map<String, Any?> = (mapOf<String, Any?>())) : PatchyRequest {
     @get:Length(min = 3)
     @get:NotNull
-    val name: String? by { changes }
+    val name: String? by { _changes }
 }
 
 

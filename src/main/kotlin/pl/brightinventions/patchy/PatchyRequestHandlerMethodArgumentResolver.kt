@@ -38,7 +38,7 @@ class PatchyRequestHandlerMethodArgumentResolver(
 
         val attributesFromRequest = readWithMessageConverters<Map<String, Any?>>(webRequest, parameter, hashMapOf<String, Any?>().javaClass)
 
-        result.changes = (attributesFromRequest as Map<String, Any?>? ?: emptyMap()).withDefault { null }
+        result._changes = (attributesFromRequest as Map<String, Any?>? ?: emptyMap()).withDefault { null }
 
         val name = Conventions.getVariableNameForParameter(parameter)
 
