@@ -1,7 +1,6 @@
 package pl.brightinventions.patchy
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import jdk.nashorn.internal.runtime.JSONListAdapter
 import org.hibernate.validator.constraints.Length
 import org.junit.gen5.api.Test
 import org.junit.gen5.junit4.runner.JUnit5
@@ -12,16 +11,11 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.validation.annotation.Validated
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import org.springframework.web.bind.MethodArgumentNotValidException
-import org.springframework.web.bind.support.ConfigurableWebBindingInitializer
 import org.springframework.web.bind.support.DefaultDataBinderFactory
-import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
-import javax.activation.MimeType
-import javax.validation.ValidationException
 import javax.validation.constraints.NotNull
-import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaMethod
 
 @RunWith(JUnit5::class)
@@ -163,39 +157,10 @@ open class ResolverTestBase {
     val methods = Methods()
 }
 
-@RunWith(JUnit5::class)
-class TmpTest {
-    @Test
-    fun `delegation`() {
-        val me = CustomRequest()
-        println(me.name)
-        me.changes = mapOf("name" to "ala")
-        me.name.assert.isEqualTo("ala")
-    }
-}
-
 class CustomRequest(override var changes: Map<String, Any?> = (mapOf<String, Any?>())) : PatchyRequest {
     @get:Length(min = 3)
     @get:NotNull
     val name: String? by { changes }
-}
-
-public operator fun <V, V1 : V> (() -> Map<in String, V>).getValue(thisRef: Any?, property: KProperty<*>): V1 {
-    val map = this()
-    val key = property.name
-    val value = map[key] as V1
-    if (property.returnType.isMarkedNullable) {
-        return value
-    } else {
-        if(value != null){
-            return value
-        }
-        if(map.containsKey(key)){
-            throw KotlinNullPointerException("Property baking map returned null value for key '$key' for non nullable property: $property")
-        } else {
-            throw KotlinNullPointerException("Property baking map has no key '$key' for non nullable property $property")
-        }
-    }
 }
 
 

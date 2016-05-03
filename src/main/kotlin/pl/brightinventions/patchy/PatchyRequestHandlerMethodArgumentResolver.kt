@@ -7,6 +7,7 @@ import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
@@ -45,16 +46,7 @@ class PatchyRequestHandlerMethodArgumentResolver(
 
         validateIfApplicable(binder, parameter)
 
-        val bindingResult = binder.bindingResult.let { source ->
-            BeanPropertyBindingResult(source.target, source.objectName).apply {
-                source.allErrors.filter { e ->
-                    when (e) {
-                        is FieldError -> attributesFromRequest?.containsKey(e.field)
-                        else -> true
-                    }
-                }.forEach { e -> addError(e) }
-            }
-        }
+        val bindingResult = filterOutFieldErrorsNotPresentInTheRequest(attributesFromRequest, binder.bindingResult)
 
         if (bindingResult.hasErrors() && isBindExceptionRequired(binder, parameter)) {
             throw MethodArgumentNotValidException(parameter, bindingResult)
@@ -63,6 +55,17 @@ class PatchyRequestHandlerMethodArgumentResolver(
         mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, bindingResult)
 
         return result
+    }
+
+    private fun filterOutFieldErrorsNotPresentInTheRequest(attributesFromRequest: Map<String, Any?>?, source: BindingResult): BeanPropertyBindingResult {
+        return BeanPropertyBindingResult(source.target, source.objectName).apply {
+            source.allErrors.filter { e ->
+                when (e) {
+                    is FieldError -> attributesFromRequest?.containsKey(e.field)
+                    else -> true
+                }
+            }.forEach { e -> addError(e) }
+        }
     }
 
     private object Factory {
