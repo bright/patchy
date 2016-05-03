@@ -46,6 +46,7 @@ dependencies {
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 
 
+    testCompile 'org.hibernate:hibernate-validator:5.2.4.Final'
     testCompile 'org.springframework:spring-test'
     testCompile 'org.assertj:assertj-core:3.4.1'
     testCompile "org.junit:junit4-runner:${project.junitVersion}"

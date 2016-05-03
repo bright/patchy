@@ -1,19 +1,17 @@
 package pl.brightinventions.patchy
 
-import org.apache.commons.logging.LogFactory
+import org.springframework.core.Conventions
 import org.springframework.core.MethodParameter
-import org.springframework.http.HttpInputMessage
-import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.util.ClassUtils
-import org.springframework.web.HttpMediaTypeNotSupportedException
-import org.springframework.web.bind.annotation.support.HandlerMethodInvoker
+import org.springframework.validation.BeanPropertyBindingResult
+import org.springframework.validation.BindingResult
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
 import org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver
-import java.util.*
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.primaryConstructor
 
@@ -36,8 +34,34 @@ class PatchyRequestHandlerMethodArgumentResolver(
                                  binderFactory: WebDataBinderFactory): Any? {
 
         val result = requestInstanceFactory(parameter.parameterType as Class<PatchyRequest>)
-        val readValue = readWithMessageConverters<Map<String, Any?>>(webRequest, parameter, hashMapOf<String, Any?>().javaClass)
-        result.changes = readValue as Map<String, Any?>? ?: emptyMap()
+
+        val attributesFromRequest = readWithMessageConverters<Map<String, Any?>>(webRequest, parameter, hashMapOf<String, Any?>().javaClass)
+
+        result.changes = (attributesFromRequest as Map<String, Any?>? ?: emptyMap()).withDefault { null }
+
+        val name = Conventions.getVariableNameForParameter(parameter)
+
+        val binder = binderFactory.createBinder(webRequest, result, name)
+
+        validateIfApplicable(binder, parameter)
+
+        val bindingResult = binder.bindingResult.let { source ->
+            BeanPropertyBindingResult(source.target, source.objectName).apply {
+                source.allErrors.filter { e ->
+                    when (e) {
+                        is FieldError -> attributesFromRequest?.containsKey(e.field)
+                        else -> true
+                    }
+                }.forEach { e -> addError(e) }
+            }
+        }
+
+        if (bindingResult.hasErrors() && isBindExceptionRequired(binder, parameter)) {
+            throw MethodArgumentNotValidException(parameter, bindingResult)
+        }
+
+        mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, bindingResult)
+
         return result
     }
 
