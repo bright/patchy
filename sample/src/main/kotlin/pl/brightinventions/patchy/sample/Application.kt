@@ -23,7 +23,7 @@ data class Request(override var _changes:Map<String,Any?> = mapOf<String,Any?>()
 @RestController
 class PatchingCtrl {
     @RequestMapping("/", method = arrayOf(RequestMethod.PATCH))
-    fun update(@Valid @RequestBody request: Request){
+    fun update(@Valid request: Request){
         println(request)
     }
 }

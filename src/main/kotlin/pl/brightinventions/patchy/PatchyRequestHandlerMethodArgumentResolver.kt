@@ -58,13 +58,17 @@ class PatchyRequestHandlerMethodArgumentResolver(
     }
 
     private fun filterOutFieldErrorsNotPresentInTheRequest(attributesFromRequest: Map<String, Any?>?, source: BindingResult): BeanPropertyBindingResult {
+        val attributes = attributesFromRequest ?: emptyMap()
         return BeanPropertyBindingResult(source.target, source.objectName).apply {
-            source.allErrors.filter { e ->
-                when (e) {
-                    is FieldError -> attributesFromRequest?.containsKey(e.field) ?: false
-                    else -> true
+            source.allErrors.forEach { e ->
+                if (e is FieldError) {
+                    if (attributes.containsKey(e.field)) {
+                        addError(e)
+                    }
+                } else {
+                    addError(e)
                 }
-            }.forEach { e -> addError(e) }
+            }
         }
     }
 
