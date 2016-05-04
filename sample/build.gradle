@@ -29,5 +29,5 @@ dependencies {
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
 
-    compile 'com.github.bright:patchy:master'
+    compile 'com.github.bright:patchy:master-SNAPSHOT'
 }

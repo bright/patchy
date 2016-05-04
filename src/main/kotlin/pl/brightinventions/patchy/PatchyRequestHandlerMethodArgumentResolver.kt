@@ -61,7 +61,7 @@ class PatchyRequestHandlerMethodArgumentResolver(
         return BeanPropertyBindingResult(source.target, source.objectName).apply {
             source.allErrors.filter { e ->
                 when (e) {
-                    is FieldError -> attributesFromRequest?.containsKey(e.field)
+                    is FieldError -> attributesFromRequest?.containsKey(e.field) ?: false
                     else -> true
                 }
             }.forEach { e -> addError(e) }

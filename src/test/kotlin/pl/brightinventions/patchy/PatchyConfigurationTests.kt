@@ -1,6 +1,7 @@
 package pl.brightinventions.patchy
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +30,11 @@ import javax.validation.constraints.NotNull
 
 private object EditedObject {
     var name = "default"
+
+    fun reset(){
+        name = "default"
+    }
+
 }
 
 class EditObjectRequest : PatchyRequest {
@@ -72,11 +78,28 @@ open class TestAppTests {
         }
     }
 
-    private fun testRequest(content: Map<String, Any?>): ResultActions {
+    @Test
+    fun `accepts empty request`() {
+        testRequest(ByteArray(0)).andExpect {
+            it.response.status.assert.isEqualTo(200)
+            EditedObject.name.assert.isEqualTo("default")
+        }
+    }
+
+    @Before
+    fun setup(){
+        EditedObject.reset()
+    }
+
+    fun testRequest(content: Map<String, Any?>): ResultActions {
+        return testRequest(ObjectMapper().writeValueAsBytes(content))
+    }
+
+    fun testRequest(jsonContent: ByteArray): ResultActions {
         return mockMvc.perform {
             MockMvcRequestBuilders.patch("/test")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(ObjectMapper().writeValueAsBytes(content))
+                    .content(jsonContent)
                     .buildRequest(it)
         }
     }
