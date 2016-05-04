@@ -16,6 +16,7 @@ buildscript {
 
 repositories {
     jcenter()
+    maven { url "https://jitpack.io" }
 }
 
 apply plugin: 'kotlin'
@@ -27,4 +28,6 @@ dependencies {
         exclude module: "spring-boot-starter-tomcat"
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
+
+    compile 'com.github.bright:patchy:master'
 }
