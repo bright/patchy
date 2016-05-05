@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.bright:patchy:0.1.0'
+    compile 'com.github.bright:patchy:v0.1.0'
     ...
 }
 ```
